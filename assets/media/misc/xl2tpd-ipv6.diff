@@ -1,0 +1,646 @@
+diff -ur xl2tpd-1.2.4/aaa.c xl2tpd-ipv6/aaa.c
+--- xl2tpd-1.2.4/aaa.c	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/aaa.c	2009-08-26 16:30:45.000000000 +0800
+@@ -316,14 +316,14 @@
+         ipr = lns->lacs;
+         while (ipr)
+         {
+-            if ((ntohl (t->peer.sin_addr.s_addr) >= ntohl (ipr->start)) &&
+-                (ntohl (t->peer.sin_addr.s_addr) <= ntohl (ipr->end)))
++            //if ((ntohl (t->peer.sin6_addr.s_addr) >= ntohl (ipr->start)) &&
++            //    (ntohl (t->peer.sin6_addr.s_addr) <= ntohl (ipr->end)))
+             {
+ #ifdef DEBUG_AAA
+                 l2tp_log (LOG_DEBUG,
+                      "get_lns: Rule %s to %s, sense %s matched %s\n",
+                      IPADDY (ipr->start), IPADDY (ipr->end),
+-                     (ipr->sense ? "allow" : "deny"), IPADDY (t->peer.sin_addr.s_addr));
++                     (ipr->sense ? "allow" : "deny"), IPADDY (t->peer.sin6_addr));
+ #endif
+                 allow = ipr->sense;
+             }
+diff -ur xl2tpd-1.2.4/call.c xl2tpd-ipv6/call.c
+--- xl2tpd-1.2.4/call.c	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/call.c	2009-08-26 16:30:45.000000000 +0800
+@@ -30,7 +30,7 @@
+ 
+ extern void child_handler (int signal);
+ 
+-struct buffer *new_payload (struct sockaddr_in peer)
++struct buffer *new_payload (struct sockaddr_in6 peer)
+ {
+     struct buffer *tmp = new_buf (MAX_RECV_SIZE);
+     if (!tmp)
+@@ -41,7 +41,7 @@
+     return tmp;
+ }
+ 
+-inline void recycle_payload (struct buffer *buf, struct sockaddr_in peer)
++inline void recycle_payload (struct buffer *buf, struct sockaddr_in6 peer)
+ {
+     buf->start = buf->rstart + sizeof (struct payload_hdr);
+     buf->len = 0;
+@@ -340,8 +340,8 @@
+         l2tp_log (LOG_INFO,
+              "Connection %d closed to %s, port %d (%s)\n", 
+              c->container->tid,
+-             IPADDY (c->container->peer.sin_addr),
+-             ntohs (c->container->peer.sin_port), c->errormsg);
++             IPADDY (c->container->peer.sin6_addr),
++             ntohs (c->container->peer.sin6_port), c->errormsg);
+     }
+     else
+     {
+@@ -389,7 +389,7 @@
+ #endif
+         control_xmit (buf);
+         l2tp_log (LOG_INFO, "%s: Call %d to %s disconnected\n", __FUNCTION__,
+-             c->ourcid, IPADDY (c->container->peer.sin_addr));
++             c->ourcid, IPADDY (c->container->peer.sin6_addr));
+     }
+     /*
+        * Note that we're in the process of closing now
+@@ -599,7 +599,7 @@
+     return tmp;
+ }
+ 
+-struct call *get_tunnel (int tunnel, unsigned int addr, int port)
++struct call *get_tunnel (int tunnel, struct in6_addr addr, int port)
+ {
+     struct tunnel *st;
+     if (tunnel)
+@@ -617,7 +617,7 @@
+     return NULL;
+ }
+ 
+-struct call *get_call (int tunnel, int call, unsigned int addr, int port,
++struct call *get_call (int tunnel, int call, struct in6_addr addr, int port,
+ 		       IPsecSAref_t refme, IPsecSAref_t refhim)
+ {
+     /*
+@@ -693,11 +693,11 @@
+                  __FUNCTION__, IPADDY (addr), ntohs (port));
+             return NULL;
+         };
+-        st->peer.sin_family = AF_INET;
+-        st->peer.sin_port = port;
++        st->peer.sin6_family = AF_INET6;
++        st->peer.sin6_port = port;
+ 	st->refme  = refme;
+ 	st->refhim = refhim;
+-        bcopy (&addr, &st->peer.sin_addr, sizeof (addr));
++        bcopy (&addr, &st->peer.sin6_addr, sizeof (addr));
+         st->next = tunnels.head;
+         tunnels.head = st;
+         tunnels.count++;
+diff -ur xl2tpd-1.2.4/call.h xl2tpd-ipv6/call.h
+--- xl2tpd-1.2.4/call.h	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/call.h	2009-08-26 16:30:45.000000000 +0800
+@@ -97,10 +97,10 @@
+ 
+ extern void push_handler (int);
+ extern void toss (struct buffer *);
+-extern struct call *get_call (int tunnel, int call, unsigned int addr,
++extern struct call *get_call (int tunnel, int call, struct in6_addr addr,
+ 			      int port,
+ 			      IPsecSAref_t refme, IPsecSAref_t refhim);
+-extern struct call *get_tunnel (int, unsigned int, int);
++extern struct call *get_tunnel (int, struct in6_addr, int);
+ extern void destroy_call (struct call *);
+ extern struct call *new_call (struct tunnel *);
+ extern void set_error (struct call *, int, const char *, ...);
+diff -ur xl2tpd-1.2.4/contrib/pppol2tp-linux-2.4.27.patch xl2tpd-ipv6/contrib/pppol2tp-linux-2.4.27.patch
+--- xl2tpd-1.2.4/contrib/pppol2tp-linux-2.4.27.patch	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/contrib/pppol2tp-linux-2.4.27.patch	2009-08-26 16:30:45.000000000 +0800
+@@ -99,9 +99,9 @@
+ + *	sax.sa_protocol = PX_PROTO_OL2TP;
+ + *	sax.pppol2tp.fd = tunnel_fd; // bound UDP socket
+ + *	sax.pppol2tp.pid = 0; 	     // current pid owns UDP socket
+-+ *	sax.pppol2tp.addr.sin_addr.s_addr = addr->sin_addr.s_addr;
+-+ *	sax.pppol2tp.addr.sin_port = addr->sin_port;
+-+ *	sax.pppol2tp.addr.sin_family = AF_INET;
+++ *	sax.pppol2tp.addr.sin6_addr.s_addr = addr->sin6_addr.s_addr;
+++ *	sax.pppol2tp.addr.sin6_port = addr->sin6_port;
+++ *	sax.pppol2tp.addr.sin6_family = AF_INET;
+ + *	sax.pppol2tp.s_tunnel  = tunnel_id;
+ + *	sax.pppol2tp.s_session = session_id;
+ + *	sax.pppol2tp.d_tunnel  = peer_tunnel_id;
+@@ -893,19 +893,19 @@
+ +#ifdef DEBUG
+ +	/* Catch bad socket parameter errors */
+ +	if (msg->msg_name) {
+-+		struct sockaddr_in * usin = (struct sockaddr_in*)msg->msg_name;
+++		struct sockaddr_in6 * usin = (struct sockaddr_in6*)msg->msg_name;
+ +		if (msg->msg_namelen < sizeof(*usin)) {
+ +			printk(KERN_ERR "msg->msg_namelen wrong, %d\n", msg->msg_namelen);
+ +			return -EINVAL;
+ +		}
+-+		if (usin->sin_family != AF_INET) {
+-+			if (usin->sin_family != AF_UNSPEC) {
+-+				printk(KERN_ERR "addr family wrong: %d\n", usin->sin_family);
+++		if (usin->sin6_family != AF_INET) {
+++			if (usin->sin6_family != AF_UNSPEC) {
+++				printk(KERN_ERR "addr family wrong: %d\n", usin->sin6_family);
+ +				return -EINVAL;
+ +			}
+ +		}
+-+		if ((usin->sin_addr.s_addr == 0) || (usin->sin_port == 0)) {
+-+			printk(KERN_ERR "udp addr=%x/%hu\n", usin->sin_addr.s_addr, usin->sin_port);
+++		if ((usin->sin6_addr.s_addr == 0) || (usin->sin6_port == 0)) {
+++			printk(KERN_ERR "udp addr=%x/%hu\n", usin->sin6_addr.s_addr, usin->sin6_port);
+ +			return -EINVAL;
+ +		}
+ +	}
+@@ -1665,7 +1665,7 @@
+ +
+ +	DPRINTK(-1, "sock=%p, uservaddr=%p, sockaddr_len=%d, flags=%d, addr=%x/%hu\n",
+ +		sock, uservaddr, sockaddr_len, flags,
+-+		ntohl(sp->pppol2tp.addr.sin_addr.s_addr), ntohs(sp->pppol2tp.addr.sin_port));
+++		ntohl(sp->pppol2tp.addr.sin6_addr.s_addr), ntohs(sp->pppol2tp.addr.sin6_port));
+ +	lock_sock(sk);
+ +
+ +	error = -EINVAL;
+@@ -2528,8 +2528,8 @@
+ +			seq_printf(m, "  SESSION '%s' %08X/%d %04X/%04X -> "
+ +				   "%04X/%04X %d %c MAGIC %s\n",
+ +				   session->name,
+-+				   htonl(session->tunnel_addr.addr.sin_addr.s_addr),
+-+				   htons(session->tunnel_addr.addr.sin_port),
+++				   htonl(session->tunnel_addr.addr.sin6_addr.s_addr),
+++				   htons(session->tunnel_addr.addr.sin6_port),
+ +				   session->tunnel_addr.s_tunnel,
+ +				   session->tunnel_addr.s_session,
+ +				   session->tunnel_addr.d_tunnel,
+@@ -2792,7 +2792,7 @@
+ +					 * 0 => current */
+ +	int	fd;			/* FD of UDP socket to use */
+ +
+-+	struct sockaddr_in addr;	/* IP address and port to send to */
+++	struct sockaddr_in6 addr;	/* IP address and port to send to */
+ +
+ +	__u16 s_tunnel, s_session;	/* For matching incoming packets */
+ +	__u16 d_tunnel, d_session;	/* For sending outgoing packets */
+diff -ur xl2tpd-1.2.4/control.c xl2tpd-ipv6/control.c
+--- xl2tpd-1.2.4/control.c	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/control.c	2009-08-26 16:30:45.000000000 +0800
+@@ -75,7 +75,7 @@
+     return tmp;
+ }
+ 
+-inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in peer)
++inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in6 peer)
+ {
+     /* 
+      * This should only be used for ZLB's!
+@@ -368,7 +368,7 @@
+             if (DEBUG)
+                 l2tp_log (LOG_DEBUG,
+                      "%s: Denied connection to unauthorized peer %s\n",
+-                     __FUNCTION__, IPADDY (t->peer.sin_addr));
++                     __FUNCTION__, IPADDY (t->peer.sin6_addr));
+             set_error (c, VENDOR_ERROR, "No Authorization");
+             c->needclose = -1;
+             return -EINVAL;
+@@ -411,7 +411,7 @@
+         while (y)
+         {
+             if ((y->tid == t->tid) &&
+-                (y->peer.sin_addr.s_addr == t->peer.sin_addr.s_addr) &&
++                (sockaddr_cmp(y->peer.sin6_addr, t->peer.sin6_addr) == 0) &&
+                 (y != t))
+             {
+                 /* This can happen if we get a duplicate
+@@ -601,8 +601,8 @@
+         t->hello = schedule (tv, hello, (void *) t);
+         l2tp_log (LOG_NOTICE,
+ 		  "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).\n",
+-		  IPADDY (t->peer.sin_addr),
+-		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim);
++		  IPADDY (t->peer.sin6_addr),
++		  ntohs (t->peer.sin6_port), t->ourtid, t->tid, t->refme, t->refhim);
+         if (t->lac)
+         {
+             /* This is part of a LAC, so we want to go ahead
+@@ -627,8 +627,8 @@
+         t->state = SCCCN;
+         l2tp_log (LOG_NOTICE,
+              "Connection established to %s, %d.  Local: %d, Remote: %d (ref=%u/%u).  LNS session is '%s'\n",
+-		  IPADDY (t->peer.sin_addr),
+-		  ntohs (t->peer.sin_port), t->ourtid, t->tid, t->refme, t->refhim,
++		  IPADDY (t->peer.sin6_addr),
++		  ntohs (t->peer.sin6_port), t->ourtid, t->tid, t->refme, t->refhim,
+ 		  t->lns->entname);
+         /* Schedule a HELLO */
+         tv.tv_sec = HELLO_DELAY;
+@@ -675,8 +675,8 @@
+         }
+         l2tp_log (LOG_INFO,
+              "%s: Connection closed to %s, port %d (%s), Local: %d, Remote: %d\n",
+-             __FUNCTION__, IPADDY (t->peer.sin_addr),
+-             ntohs (t->peer.sin_port), t->self->errormsg, t->ourtid, t->tid);
++             __FUNCTION__, IPADDY (t->peer.sin6_addr),
++             ntohs (t->peer.sin6_port), t->self->errormsg, t->ourtid, t->tid);
+         c->needclose = 0;
+         c->closing = -1;
+         break;
+@@ -817,7 +817,7 @@
+             l2tp_log (LOG_DEBUG, "%s: Sending ICCN\n", __FUNCTION__);
+         l2tp_log (LOG_NOTICE,
+ 		  "Call established with %s, Local: %d, Remote: %d, Serial: %d (ref=%u/%u)\n",
+-		  IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
++		  IPADDY (t->peer.sin6_addr), c->ourcid, c->cid,
+ 		  c->serno, t->refme, t->refhim);
+         control_xmit (buf);
+         po = NULL;
+@@ -827,8 +827,8 @@
+         {
+             if (c->lac->defaultroute)
+                 po = add_opt (po, "defaultroute");
+-            strncpy (ip1, IPADDY (c->lac->localaddr), sizeof (ip1));
+-            strncpy (ip2, IPADDY (c->lac->remoteaddr), sizeof (ip2));
++            strncpy (ip1, IPADDY4 (c->lac->localaddr), sizeof (ip1));
++            strncpy (ip2, IPADDY4 (c->lac->remoteaddr), sizeof (ip2));
+ #ifdef IP_ALLOCATION
+             po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
+                           c->lac->remoteaddr ? ip2 : "");
+@@ -919,8 +919,8 @@
+             */
+         }
+         c->state = ICCN;
+-        strncpy (ip1, IPADDY (c->lns->localaddr), sizeof (ip1));
+-        strncpy (ip2, IPADDY (c->addr), sizeof (ip2));
++        strncpy (ip1, IPADDY4 (c->lns->localaddr), sizeof (ip1));
++        strncpy (ip2, IPADDY4 (c->addr), sizeof (ip2));
+         po = NULL;
+         po = add_opt (po, "passive");
+         po = add_opt (po, "nodetach");
+@@ -963,7 +963,7 @@
+         opt_destroy (po);
+         l2tp_log (LOG_NOTICE,
+              "Call established with %s, Local: %d, Remote: %d, Serial: %d\n",
+-             IPADDY (t->peer.sin_addr), c->ourcid, c->cid,
++             IPADDY (t->peer.sin6_addr), c->ourcid, c->cid,
+              c->serno);
+         break;
+     case OCRP:                 /* jz: nothing to do for OCRP, waiting for OCCN */
+@@ -980,8 +980,8 @@
+         {
+             if (c->lac->defaultroute)
+                 po = add_opt (po, "defaultroute");
+-            strncpy (ip1, IPADDY (c->lac->localaddr), sizeof (ip1));
+-            strncpy (ip2, IPADDY (c->lac->remoteaddr), sizeof (ip2));
++            strncpy (ip1, IPADDY4 (c->lac->localaddr), sizeof (ip1));
++            strncpy (ip2, IPADDY4 (c->lac->remoteaddr), sizeof (ip2));
+             po = add_opt (po, "%s:%s", c->lac->localaddr ? ip1 : "",
+                           c->lac->remoteaddr ? ip2 : "");
+             if (c->lac->authself)
+@@ -1082,7 +1082,7 @@
+         }
+         l2tp_log (LOG_INFO,
+              "%s: Connection closed to %s, serial %d (%s)\n", __FUNCTION__,
+-             IPADDY (t->peer.sin_addr), c->serno, c->errormsg);
++             IPADDY (t->peer.sin6_addr), c->serno, c->errormsg);
+         c->needclose = 0;
+         c->closing = -1;
+         break;
+diff -ur xl2tpd-1.2.4/control.h xl2tpd-ipv6/control.h
+--- xl2tpd-1.2.4/control.h	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/control.h	2009-08-26 16:30:45.000000000 +0800
+@@ -58,7 +58,7 @@
+                              struct buffer *);
+ extern int control_finish (struct tunnel *t, struct call *c);
+ extern void control_zlb (struct buffer *, struct tunnel *, struct call *);
+-extern void recycle_outgoing (struct buffer *, struct sockaddr_in);
++extern void recycle_outgoing (struct buffer *, struct sockaddr_in6);
+ extern void handle_special (struct buffer *, struct call *, _u16);
+ extern void hello (void *);
+ extern void send_zlb (void *);
+diff -ur xl2tpd-1.2.4/file.c xl2tpd-ipv6/file.c
+--- xl2tpd-1.2.4/file.c	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/file.c	2009-08-27 14:01:05.000000000 +0800
+@@ -1017,7 +1017,7 @@
+         l2tp_log (LOG_DEBUG, "set_lns: setting LNS to '%s'\n", value);
+ #endif
+         l = (struct lac *) item;
+-        d = strchr (value, ':');
++        d = strrchr (value, ':');
+         if (d)
+         {
+             d[0] = 0;
+diff -ur xl2tpd-1.2.4/l2tp.h xl2tpd-ipv6/l2tp.h
+--- xl2tpd-1.2.4/l2tp.h	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/l2tp.h	2009-08-26 16:30:45.000000000 +0800
+@@ -145,7 +145,7 @@
+     unsigned int addr;          /* Remote address */
+     unsigned short port;        /* Port on remote end */
+ #else
+-    struct sockaddr_in peer;    /* Peer's Address */
++    struct sockaddr_in6 peer;    /* Peer's Address */
+ #endif
+     int debug;                  /* Are we debugging or not? */
+     int nego;                   /* Show Negotiation? */
+@@ -208,8 +208,8 @@
+ extern struct tunnel *new_tunnel ();
+ extern struct packet_queue xmit_udp;
+ extern void destroy_tunnel (struct tunnel *);
+-extern struct buffer *new_payload (struct sockaddr_in);
+-extern void recycle_payload (struct buffer *, struct sockaddr_in);
++extern struct buffer *new_payload (struct sockaddr_in6);
++extern void recycle_payload (struct buffer *, struct sockaddr_in6);
+ extern void add_payload_hdr (struct tunnel *, struct call *, struct buffer *);
+ extern int read_packet (struct buffer *, int, int);
+ extern void udp_xmit (struct buffer *buf, struct tunnel *t);
+diff -ur xl2tpd-1.2.4/linux/include/linux/if_pppol2tp.h xl2tpd-ipv6/linux/include/linux/if_pppol2tp.h
+--- xl2tpd-1.2.4/linux/include/linux/if_pppol2tp.h	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/linux/include/linux/if_pppol2tp.h	2009-08-26 16:30:45.000000000 +0800
+@@ -30,7 +30,7 @@
+ 					 * 0 => current */
+ 	int	fd;			/* FD of UDP socket to use */
+ 
+-	struct sockaddr_in addr;	/* IP address and port to send to */
++	struct sockaddr_in6 addr;	/* IP address and port to send to */
+ 
+ 	__u16 s_tunnel, s_session;	/* For matching incoming packets */
+ 	__u16 d_tunnel, d_session;	/* For sending outgoing packets */
+diff -ur xl2tpd-1.2.4/misc.c xl2tpd-ipv6/misc.c
+--- xl2tpd-1.2.4/misc.c	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/misc.c	2009-08-26 16:30:45.000000000 +0800
+@@ -29,6 +29,17 @@
+ #include <netinet/in.h>
+ #include "l2tp.h"
+ 
++char ipaddy_buf[1024];
++socklen_t ipaddr_len = sizeof(ipaddy_buf);
++
++int sockaddr_cmp(struct in6_addr a1, struct in6_addr a2) {
++    int i;
++    for (i = 0; i < 16; i++)
++        if (a1.s6_addr[i] != a2.s6_addr[i])
++            return a1.s6_addr[i] - a2.s6_addr[i];
++    return 0;
++}
++
+ void init_log()
+ {
+     static int logopen=0;
+diff -ur xl2tpd-1.2.4/misc.h xl2tpd-ipv6/misc.h
+--- xl2tpd-1.2.4/misc.h	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/misc.h	2009-08-26 16:30:45.000000000 +0800
+@@ -30,7 +30,7 @@
+     unsigned int addr;
+     int port;
+ #else
+-    struct sockaddr_in peer;
++    struct sockaddr_in6 peer;
+ #endif
+     struct tunnel *tunnel;      /* Who owns this packet, if it's a control */
+     int retries;                /* Again, if a control packet, how many retries? */
+@@ -42,7 +42,10 @@
+     struct ppp_opts *next;
+ };
+ 
+-#define IPADDY(a) inet_ntoa(*((struct in_addr *)&(a)))
++extern char ipaddy_buf[];
++extern socklen_t ipaddr_len;
++#define IPADDY4(a) inet_ntoa(*((struct in_addr *)&(a)))
++#define IPADDY(a) inet_ntop(AF_INET6, (struct in6_addr*)&(a), ipaddy_buf, ipaddr_len)
+ 
+ #define DEBUG c ? c->debug || t->debug : t->debug
+ 
+@@ -61,6 +64,7 @@
+ #define halt() printf("Halted.\n") ; for(;;)
+ 
+ extern char hostname[];
++extern int sockaddr_cmp(struct in6_addr a1, struct in6_addr a2);
+ extern void l2tp_log (int level, const char *fmt, ...);
+ extern struct buffer *new_buf (int);
+ extern void udppush_handler (int);
+diff -ur xl2tpd-1.2.4/network.c xl2tpd-ipv6/network.c
+--- xl2tpd-1.2.4/network.c	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/network.c	2009-08-26 16:30:45.000000000 +0800
+@@ -29,7 +29,7 @@
+ #include "ipsecmast.h"
+ 
+ char hostname[256];
+-struct sockaddr_in server, from;        /* Server and transmitter structs */
++struct sockaddr_in6 server, from;        /* Server and transmitter structs */
+ int server_socket;              /* Server socket */
+ #ifdef USE_KERNEL
+ int kernel_support;             /* Kernel Support there or not? */
+@@ -41,10 +41,11 @@
+     long arg;
+     unsigned int length = sizeof (server);
+     gethostname (hostname, sizeof (hostname));
+-    server.sin_family = AF_INET;
+-    server.sin_addr.s_addr = gconfig.listenaddr; 
+-    server.sin_port = htons (gconfig.port);
+-    if ((server_socket = socket (PF_INET, SOCK_DGRAM, 0)) < 0)
++    server.sin6_family = AF_INET6;
++    //server.sin6_addr.s_addr = gconfig.listenaddr; 
++    server.sin6_addr = in6addr_any;
++    server.sin6_port = htons (gconfig.port);
++    if ((server_socket = socket (PF_INET6, SOCK_DGRAM, 0)) < 0)
+     {
+         l2tp_log (LOG_CRIT, "%s: Unable to allocate socket. Terminating.\n",
+              __FUNCTION__);
+@@ -109,7 +110,7 @@
+     arg = fcntl (server_socket, F_GETFL);
+     arg |= O_NONBLOCK;
+     fcntl (server_socket, F_SETFL, arg);
+-    gconfig.port = ntohs (server.sin_port);
++    gconfig.port = ntohs (server.sin6_port);
+     return 0;
+ }
+ 
+@@ -374,7 +375,7 @@
+      * We loop forever waiting on either data from the ppp drivers or from
+      * our network socket.  Control handling is no longer done here.
+      */
+-    struct sockaddr_in from, to;
++    struct sockaddr_in6 from, to;
+     unsigned int fromlen, tolen;
+     int tunnel, call;           /* Tunnel and call */
+     int recvsize;               /* Length of data received */
+@@ -507,7 +508,7 @@
+ 	    {
+ 		l2tp_log(LOG_DEBUG, "%s: recv packet from %s, size = %d, "
+ 			 "tunnel = %d, call = %d ref=%u refhim=%u\n",
+-			 __FUNCTION__, inet_ntoa (from.sin_addr),
++			 __FUNCTION__, IPADDY(from.sin6_addr),
+ 			 recvsize, tunnel, call, refme, refhim);
+ 	    }
+ 
+@@ -516,12 +517,12 @@
+ 		do_packet_dump (buf);
+ 	    }
+ 	    if (!
+-		(c = get_call (tunnel, call, from.sin_addr.s_addr,
+-			       from.sin_port, refme, refhim)))
++		(c = get_call (tunnel, call, from.sin6_addr,
++			       from.sin6_port, refme, refhim)))
+ 	    {
+ 		if ((c =
+-		     get_tunnel (tunnel, from.sin_addr.s_addr,
+-				 from.sin_port)))
++		     get_tunnel (tunnel, from.sin6_addr,
++				 from.sin6_port)))
+ 		{
+ 		    /*
+ 		     * It is theoretically possible that we could be sent
+diff -ur xl2tpd-1.2.4/tags xl2tpd-ipv6/tags
+--- xl2tpd-1.2.4/tags	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/tags	2009-08-26 16:30:45.000000000 +0800
+@@ -335,7 +335,7 @@
+ frame	call.h	/^    int frame;                  \/* Framing being used *\/$/;"	m	struct:call
+ frame_type_avp	avp.c	/^int frame_type_avp (struct tunnel *t, struct call *c, void *data, int datalen)$/;"	f
+ framing_caps_avp	avp.c	/^int framing_caps_avp (struct tunnel *t, struct call *c, void *data,$/;"	f
+-from	network.c	/^struct sockaddr_in server, from;        \/* Server and transmitter structs *\/$/;"	v
++from	network.c	/^struct sockaddr_in6 server, from;        \/* Server and transmitter structs *\/$/;"	v
+ func	scheduler.h	/^    void (*func) (void *);      \/* Function to execute *\/$/;"	m	struct:schedule_entry
+ gconfig	file.c	/^struct global gconfig;$/;"	v
+ getPtyMaster	pty.c	/^int getPtyMaster (char *tty10, char *tty01)$/;"	f
+@@ -435,7 +435,7 @@
+ new_lac	file.c	/^struct lac *new_lac ()$/;"	f
+ new_lns	file.c	/^struct lns *new_lns ()$/;"	f
+ new_outgoing	control.c	/^struct buffer *new_outgoing (struct tunnel *t)$/;"	f
+-new_payload	call.c	/^struct buffer *new_payload (struct sockaddr_in peer)$/;"	f
++new_payload	call.c	/^struct buffer *new_payload (struct sockaddr_in6 peer)$/;"	f
+ new_tunnel	l2tpd.c	/^struct tunnel *new_tunnel ()$/;"	f
+ next	aaa.h	/^    struct addr_ent *next;$/;"	m	struct:addr_ent
+ next	call.h	/^    struct call *next;          \/* Next call, for linking *\/$/;"	m	struct:call
+@@ -471,8 +471,8 @@
+ parse_config	file.c	/^int parse_config (FILE * f)$/;"	f
+ passwdauth	file.h	/^    int passwdauth;             \/* Authenticate by passwd file? (or PAM) *\/$/;"	m	struct:lns
+ payload_hdr	l2tp.h	/^struct payload_hdr$/;"	s
+-peer	l2tp.h	/^    struct sockaddr_in peer;    \/* Peer's Address *\/$/;"	m	struct:tunnel
+-peer	misc.h	/^    struct sockaddr_in peer;$/;"	m	struct:buffer
++peer	l2tp.h	/^    struct sockaddr_in6 peer;    \/* Peer's Address *\/$/;"	m	struct:tunnel
++peer	misc.h	/^    struct sockaddr_in6 peer;$/;"	m	struct:buffer
+ peername	file.h	/^    char peername[STRLEN];      \/* Force peer name to this *\/$/;"	m	struct:lac
+ peername	file.h	/^    char peername[STRLEN];      \/* Force peer name to this *\/$/;"	m	struct:lns
+ physchan	call.h	/^    int physchan;               \/* Physical channel ID *\/$/;"	m	struct:call
+@@ -504,8 +504,8 @@
+ read_packet	call.c	/^int read_packet (struct buffer *buf, int fd, int convert)$/;"	f
+ receive_window_size_avp	avp.c	/^int receive_window_size_avp (struct tunnel *t, struct call *c, void *data,$/;"	f
+ recycle_buf	misc.c	/^inline void recycle_buf (struct buffer *b)$/;"	f
+-recycle_outgoing	control.c	/^inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in peer)$/;"	f
+-recycle_payload	call.c	/^inline void recycle_payload (struct buffer *buf, struct sockaddr_in peer)$/;"	f
++recycle_outgoing	control.c	/^inline void recycle_outgoing (struct buffer *buf, struct sockaddr_in6 peer)$/;"	f
++recycle_payload	call.c	/^inline void recycle_payload (struct buffer *buf, struct sockaddr_in6 peer)$/;"	f
+ redial	file.h	/^    int redial;                 \/* Redial if disconnected *\/$/;"	m	struct:lac
+ remoteaddr	file.h	/^    unsigned int remoteaddr;    \/* Force remote address to this *\/$/;"	m	struct:lac
+ rend	misc.h	/^    void *rend;$/;"	m	struct:buffer
+@@ -541,7 +541,7 @@
+ seq_reqd	call.h	/^    int seq_reqd;               \/* Sequencing required? *\/$/;"	m	struct:call
+ seq_reqd_avp	avp.c	/^int seq_reqd_avp (struct tunnel *t, struct call *c, void *data, int datalen)$/;"	f
+ serno	call.h	/^    unsigned int serno;         \/* Call serial number *\/$/;"	m	struct:call
+-server	network.c	/^struct sockaddr_in server, from;        \/* Server and transmitter structs *\/$/;"	v
++server	network.c	/^struct sockaddr_in6 server, from;        \/* Server and transmitter structs *\/$/;"	v
+ server_socket	network.c	/^int server_socket;              \/* Server socket *\/$/;"	v
+ set_accesscontrol	file.c	/^int set_accesscontrol (char *word, char *value, int context, void *item)$/;"	f
+ set_authfile	file.c	/^int set_authfile (char *word, char *value, int context, void *item)$/;"	f
+diff -ur xl2tpd-1.2.4/xl2tpd.c xl2tpd-ipv6/xl2tpd.c
+--- xl2tpd-1.2.4/xl2tpd.c	2009-03-09 07:25:30.000000000 +0800
++++ xl2tpd-ipv6/xl2tpd.c	2009-08-28 20:10:33.000000000 +0800
+@@ -120,8 +120,8 @@
+                  " control_seq_num = %d, control_rec_seq_num = %d,"
+                  " cLr = %d, call count = %d ref=%u/refhim=%u",
+                  (t->lac ? t->lac->entname : (t->lns ? t->lns->entname : "")),
+-                 t->ourtid, t->tid, IPADDY (t->peer.sin_addr),
+-                 ntohs (t->peer.sin_port), t->control_seq_num,
++                 t->ourtid, t->tid, IPADDY (t->peer.sin6_addr),
++                 ntohs (t->peer.sin6_port), t->control_seq_num,
+                   t->control_rec_seq_num, t->cLr, t->count,
+                   t->refme, t->refhim);
+         c = t->call_head;
+@@ -352,9 +352,9 @@
+        sax.sa_protocol = PX_PROTO_OL2TP;
+        sax.pppol2tp.pid = 0;
+        sax.pppol2tp.fd = server_socket;
+-       sax.pppol2tp.addr.sin_addr.s_addr = c->container->peer.sin_addr.s_addr;
+-       sax.pppol2tp.addr.sin_port = c->container->peer.sin_port;
+-       sax.pppol2tp.addr.sin_family = AF_INET;
++       sax.pppol2tp.addr.sin6_addr.s_addr = c->container->peer.sin6_addr.s_addr;
++       sax.pppol2tp.addr.sin6_port = c->container->peer.sin6_port;
++       sax.pppol2tp.addr.sin6_family = AF_INET;
+        sax.pppol2tp.s_tunnel  = c->container->ourtid;
+        sax.pppol2tp.s_session = c->ourcid;
+        sax.pppol2tp.d_tunnel  = c->container->tid;
+@@ -581,17 +581,26 @@
+      * on port port
+      */
+     struct call *tmp = NULL;
+-    struct hostent *hp;
+-    unsigned int addr;
++    //struct hostent *hp;
++    struct in6_addr addr;
++    int rv;
++    struct addrinfo hints, *si;
+     port = htons (port);
+-    hp = gethostbyname (host);
+-    if (!hp)
++
++    memset(&hints, 0, sizeof(hints));
++    hints.ai_family = AF_INET6;
++    hints.ai_flags = AI_V4MAPPED;
++    if ((rv = getaddrinfo(host, NULL, &hints, &si)) != 0)
++    //hp = gethostbyname2 (host, AF_INET6);
++    //if (!hp)
+     {
+-        l2tp_log (LOG_WARNING, "Host name lookup failed for %s.\n",
+-             host);
++        l2tp_log (LOG_WARNING, "Host name lookup failed for %s: %s.\n",
++             host, gai_strerror(rv));
+         return NULL;
+     }
+-    bcopy (hp->h_addr, &addr, hp->h_length);
++
++    addr = ((struct sockaddr_in6 *)si->ai_addr)->sin6_addr;
++
+     /* Force creation of a new tunnel
+        and set it's tid to 0 to cause
+        negotiation to occur */
+@@ -756,7 +765,7 @@
+         {
+             l2tp_log (LOG_INFO,
+                  "Disconnecting from %s, Local: %d, Remote: %d\n",
+-                 IPADDY (t->peer.sin_addr), t->ourtid, t->tid);
++                 IPADDY (t->peer.sin6_addr), t->ourtid, t->tid);
+             t->self->needclose = -1;
+             strcpy (t->self->errormsg, "Goodbye!");
+             call_close (t->self);
+@@ -802,9 +811,9 @@
+     tmp->nego = 0;
+     tmp->count = 0;
+     tmp->state = 0;             /* Nothing */
+-    tmp->peer.sin_family = AF_INET;
+-    tmp->peer.sin_port = 0;
+-    bzero (&(tmp->peer.sin_addr), sizeof (tmp->peer.sin_addr));
++    tmp->peer.sin6_family = AF_INET6;
++    tmp->peer.sin6_port = 0;
++    bzero (&(tmp->peer.sin6_addr), sizeof (tmp->peer.sin6_addr));
+ #ifdef SANITY
+     tmp->sanity = -1;
+ #endif
+@@ -1198,7 +1207,7 @@
+ void init (int argc,char *argv[])
+ {
+     struct lac *lac;
+-    struct in_addr listenaddr;
++    struct in6_addr listenaddr;
+     struct utsname uts;
+ 
+     init_args (argc,argv);
+@@ -1244,9 +1253,10 @@
+     l2tp_log (LOG_INFO, "Forked by Scott Balmos and David Stipp, (C) 2001\n");
+     l2tp_log (LOG_INFO, "Inherited by Jeff McAdams, (C) 2002\n");
+     l2tp_log (LOG_INFO, "Forked again by Xelerance (www.xelerance.com) (C) 2006\n");
+-    listenaddr.s_addr = gconfig.listenaddr;
++    //listenaddr.s_addr = gconfig.listenaddr;
++    listenaddr = in6addr_any;
+     l2tp_log (LOG_INFO, "Listening on IP address %s, port %d\n",
+-              inet_ntoa(listenaddr), gconfig.port);
++              IPADDY(listenaddr), gconfig.port);
+     lac = laclist;
+     while (lac)
+     {

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>在 NAT 后面使用 ISATAP 连接 IPv6 - 无人区@寒水远山</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Cheng Li">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css?0.855843752980181" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/font-awesome.min.css?0.075855288712665" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css?0.1713089821204148" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css?0.5959057724389423" type="text/css" rel="stylesheet" media="all">
+
+    
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">无人区@寒水远山</a>
+          <ul class="nav">
+              
+                <li><a href="/archive">文章列表</a></li>
+              
+                <li><a href="/categories">分类</a></li>
+              
+                <li><a href="/about">关于我</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header row-fluid">
+  <div class="span10 offset1">
+    <h1>在 NAT 后面使用 ISATAP 连接 IPv6 </h1>
+  </div>
+</div>
+<div class="row-fluid post-full">
+  <div class="span7 offset1">
+    <div class="content">
+      <p>寒假回家想用 isatap 连接 ipv6, 但是家里是用路由器上网, isatap 默认在 NAT
+后面没法正常工作. 考虑到路由器后面只有我一台机器需要 ipv6 连接,
+于是开始瞎折腾, 想办法把所有 isatap 的数据全部定向到我那台机器上.
+我机器的系统是 win7, 路由器系统是 openwrt brcm-2.4.</p>
+
+<p>首先在路由器防火墙里面加条规则, 把收到的协议号是 41
+的数据包全部重定向到我的机器上面. 像 isatap, 6to4 等协议的协议号都是 41.
+openwrt 可以直接修改 /etc/config/firewall :</p>
+
+<pre><code class="lang=&quot;INI&quot;">config redirect
+option src                      wan
+option dest                     lan
+option dest_ip          192.168.11.2
+option proto            41
+</code></pre>
+
+<p>其他类似的系统 (如 dd-wrt 之类的) 应该可以直接用 iptables 修改.</p>
+
+<p>不过改了这些之后还是上不了网. 抓包之后觉得可能是因为数据包的 link-local
+地址和全局的 ipv6 地址不对, 于是用 netsh 人肉指定了一下这两个地址.
+我写了个简单的 bat 来搞这件事情.</p>
+
+<pre><code class="lang=&quot;DOS&quot;">@echo off
+
+set interface=isatap.lan     // 这个是我 isatap interface 的名字
+set prefix=&quot;2001:da8:8000:d010&quot;  // 我用的是上交的 isatap router
+set ip=&quot;220.x.x.x&quot;     // 这个是我路由器的外网 ip
+
+for /f &quot; tokens=2 delims=%% &quot; %%a in (&#39;&quot;netsh int ipv6 show addr %interface% | findstr /r ^Address.*Parameters$&quot;&#39;) do netsh int ipv6 del addr %interface% %%a
+
+netsh int ipv6 add addr %interface% fe80::5efe:%ip%
+netsh int ipv6 add addr %interface% %prefix%:0:5efe:%ip%
+
+netsh int ipv6 isa s s d
+netsh int ipv6 isa s s e
+</code></pre>
+
+<p>搞定了这些之后就可以连通 ipv6 站点了 :)</p>
+
+<p>ps. 最后想了个歪办法来解决路由器后面有多个机器需要 ipv6 连接的情况,
+就是每个机器用一个不同的 isatap router. :-D</p>
+
+    </div>
+    <hr>
+    <div class="pagination">
+      <ul>
+          <li class="prev"><a href="/2010/year-2009" title="2009 年">&larr; 上一篇</a></li>
+
+          <li><a href="/archive">文章列表</a></li>
+
+          <li class="next disabled"><a>下一篇 &rarr;</a>
+      </ul>
+    </div>
+    <hr>
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'blog-lifetoy';
+        var disqus_url = 'http://blog.lifetoy.org/2010/isatap-behide-nat';
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+        (function () {
+          var s = document.createElement('script'); s.async = true; s.type = 'text/javascript';
+          s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+          (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">正在加载 <span class="logo-disqus">Disqus</span> 评论</a>
+  </div>
+
+  <div class="span3">
+    <ul class="unstyled inline">
+      <li><i class="icon-calendar"></i></li>
+      <li>发布时间 <strong>2010-01-31</strong></li>
+    </ul>
+    <ul class="unstyled inline">
+      <li><i class="icon-comments"></i></li>
+      <li><a href="http://blog.lifetoy.org/2010/isatap-behide-nat#disqus_thread">评论</a></li>
+    </ul>
+    <ul class="tag_box inline">
+      <li><i class="icon-folder-open"></i></li>
+      <li>
+        <a href="/categories#note-ref">note <span>2</span></a>
+      </li>    </ul>
+    <ul class="tag_box inline">
+      <li><i class="icon-tags"></i></li>
+      <li>
+        <a href="#ipv6-ref">ipv6 <span>2</span></a>
+      </li>      <li>
+        <a href="#isatap-ref">isatap <span>1</span></a>
+      </li>      <li>
+        <a href="#nat-ref">nat <span>1</span></a>
+      </li>    </ul>
+  </div>
+</div>
+
+      </div>
+
+      <hr>
+      <div class="footer">
+        <p>&copy; Cheng Li 2013
+          with help from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+        </p>
+      </div>
+
+    </div> <!-- /container -->
+
+    <!-- Google Prettify -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+<!-- end Google Prettify -->
+    <script>
+  var _gaq=[['_setAccount','UA-123-12'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+  </body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ACM/ICPC Shanghai Regional 游记 - 无人区@寒水远山</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Cheng Li">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css?0.8005803882847394" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/font-awesome.min.css?0.44063937017774124" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css?0.5174682895095175" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css?0.2769762313246611" type="text/css" rel="stylesheet" media="all">
+
+    
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">无人区@寒水远山</a>
+          <ul class="nav">
+              
+                <li><a href="/archive">文章列表</a></li>
+              
+                <li><a href="/categories">分类</a></li>
+              
+                <li><a href="/about">关于我</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header row-fluid">
+  <div class="span10 offset1">
+    <h1>ACM/ICPC Shanghai Regional 游记 </h1>
+  </div>
+</div>
+<div class="row-fluid post-full">
+  <div class="span7 offset1">
+    <div class="content">
+      <p><img src="/assets/media/images/acm_icpc.png" alt="acm\_icpc" title="acm_icpc">
+首先必须指出的是, 我们参加的不是上海赛区的比赛, 是松江赛区的.
+当校车将我们送到大众宾馆的时候, 我们就意识到了这点: 方圆 x 里之内,
+似乎就宾馆这一座肉眼可见建筑.</p>
+
+<p>报道是在另一个宾馆搞定的, 报道的时候顺便抽签 + 测体温,
+于是被大家围观到了 jay 哥看到 mm (手中的体温计) 时扭过头视死如归的神情
+(据 shi 哥说还有更深层次的原因, 这里就不爆了). 晚饭在宾馆吃,
+每人发一小碗菜 (就像是装在盘子里面的麦香快餐), 群众们纷纷表示太抠门了.</p>
+
+<p>晚饭后继续宅宾馆. 必须要说宾馆的网络太赞了, Huawei 的接入认证, 直接可以
+DHCP 到一个公网 IP, 实际测试网络大概有 1M/s, 比 zjg 那个破烧卡快多了.</p>
+
+<p>第二天上午 7 点钟被叫醒. 吃早饭的时候居然必须凑满一桌才给上菜, 真不和谐.
+在一个冗长的开幕式之后, 试机赛开始了. 题目果然和之前传闻的一样, 5
+个小时三道题. 一上机就悲剧地发现键盘好难用, 还发现了机器上面居然没有装
+gvim, 真悲剧. 把三道题都过掉之后, 大家测试了一下比赛时候用的评测系统.
+感觉这个东西就是个 oj, 和 PC2 的区别还是挺大的. 之后开始扫荡食品,
+不过吃的东西好少 T_T. 很快解决了午饭之后, 试机赛还剩下好长好长的时间,
+无聊之际发现了当代码含有某些关键字的时候, judge client 会提示 restricted
+keyword 而提示编译错误. 于是接下来的时间大家开始调戏 judge 系统,
+发现那个 oj 除了代码关键字过滤之外没有任何机制来过滤 system call,
+譬如直接 exec /bin/cat 就可以把 B 题 AC 掉  :roll: ,
+玩了半天发现热身赛还没结束, 于是把 ubuntu 自带的游戏几乎都玩了一遍 :-D</p>
+
+<p>在 DHU 的食堂晚饭后大家到 DHU 校内的一个超市里面大采购. 旁边两个 DHU 的
+mm 一直看着我们的 QS 行为, 似乎想笑又没好意思笑出来 :-| .
+回到宾馆之后发生了某件神奇的事件: 小 quark 睡了一半忽然问 fancy
+&quot;我们队是不是有奇数个人&quot;, fancy 回答了 &quot;是&quot; 以后 quark 才继续安心睡觉...</p>
+
+<p>第二天正式比赛. 和平时训练一样, shi 哥看 A-D, 我从 E 开始看, jay
+哥倒着看题. 史哥看到 B 之后直接上去搞了, 不过似乎遇到了一点麻烦.
+这时候发现场上已经有几队过了 A, 转头去看 A 结果发现是道水题, 于是我去搞
+A. 人肉了半天把那幅图的边敲进去, 提交以后 WA.
+然后我才发现我有个地方写错了, 极其脑残的错误 (不知道怎么居然会过 sample,
+我太土了 :-o ), 提交以后终于过了.</p>
+
+<p>之后 shi 哥上去继续搞 B. 场上有队伍过了 F 和 J, 于是我和 jay 哥在 yy
+这两题. 当时觉得 F 题里面 k &lt;= 200, 复杂度不知道怎么算但是感觉不大
+(事实证明感觉完全错了), 因为看到有队伍过了于是准备水一下. 史哥交了 B
+之后我写 F, 期间史哥改了 B 的一处地方之后 AC 了, 接下来我交了 F,
+果然成功 TLE (T_T).</p>
+
+<p>这个时候场上 F I J 都有队伍过. 互相交流了一下题意之后, shi 哥和 jay
+哥在讨论 J, 我在 yy I. 忽然发现 I 里面每个点只会和最近的 4 个点连边. 和
+shi 哥交流一下觉得这个想法应该是对的, 于是我准备上去写 I.
+结果一开始发现看不懂 input 的格式是什么, shi 哥讲了一遍结果我还是没看懂
+(T_T), 于是 shi 哥说他来搞这题, 我就敲了一下模块. 最后 I 1Y,
+感觉还是小激动了一下, 因为前两题我们的罚时有点大.</p>
+
+<p>这时候 jay 哥说 J 想清楚了, 于是上去搞 J. 我和 shi
+哥在看看还有什么题比较有前途. 最后决定搞 E. 确定了算法之后,
+我在人肉各个方块的旋转, shi 哥等 jay 哥搞完 J 之后上去敲代码. jay
+哥敲完程序之后发现过不了第三个 sample, 然后才发现题意理解的有些问题.
+于是 shi 哥上去敲 E, jay 哥在 yy 怎么改 J. 封 board 之后 jay
+哥上去改了一下代码, 提交之后 1Y, 大赞.</p>
+
+<p>这时候比赛只剩下了大概四十分钟, 接下来三个人一起搞 E. 我在纸上人肉
+sample, jay 哥帮忙检查方块的表示和旋转是否有问题, 期间抓出了程序中的许多
+bug. 终于在离比赛结束不到五分钟的时候, 过了 E 的 sample.
+于是不管三七二十一, 直接注释掉调试信息以后提交, 顺便打印了一份.
+焦急地等待了一会之后, 屏幕上弹出了一个 Accepted, 三个人都兴奋地叫了出来
+:-D . 看了一下提交时间, 14:57:41.</p>
+
+<p><img src="/assets/media/images/icpc_shanghai_runs.png" alt="icpc\_shanghai\_runs" title="icpc_shanghai_runs"></p>
+
+<p>比赛结束之后发现 xls 和 vbvan 都来了,
+大家用打牌和吃饭把下午的时间全部消灭光了.
+晚上颁奖晚会之后有传说中的版聚. 为了找一个合适的地方 FB,
+大家沿着某条路搜索又回溯了 n 次之后终于决定去 KFC. 赞一下 xls 和 vbvan
+的 bg~</p>
+
+<p>这次松江之行大概就这些内容吧, 要看小姐的童鞋不要 pia 我,
+我说过这个是伪小结了 -_-. 最后,
+祝福所有还有比赛的童鞋能够取得自己满意的成绩~</p>
+
+<p>Related links:</p>
+
+<p><a href="http://watashi.ws/blog/?p=48">http://watashi.ws/blog/?p=48</a>
+<a href="http://hi.baidu.com/jay23jack/blog/item/83ad3ac5c04780d6d100608d.html">http://hi.baidu.com/jay23jack/blog/item/83ad3ac5c04780d6d100608d.html</a></p>
+
+    </div>
+    <hr>
+    <div class="pagination">
+      <ul>
+          <li class="prev"><a href="/2009/excel-07-crashes-on-windows-7" title="Excel 07 crashes in Windows 7">&larr; 上一篇</a></li>
+
+          <li><a href="/archive">文章列表</a></li>
+
+          <li class="next"><a href="/2009/hospital-life" title="住院">下一篇 &rarr;</a></li>
+      </ul>
+    </div>
+    <hr>
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'blog-lifetoy';
+        var disqus_url = 'http://blog.lifetoy.org/2009/acm-icpc-shanghai-regional-tour';
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+        (function () {
+          var s = document.createElement('script'); s.async = true; s.type = 'text/javascript';
+          s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+          (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">正在加载 <span class="logo-disqus">Disqus</span> 评论</a>
+  </div>
+
+  <div class="span3">
+    <ul class="unstyled inline">
+      <li><i class="icon-calendar"></i></li>
+      <li>发布时间 <strong>2009-10-27</strong></li>
+    </ul>
+    <ul class="unstyled inline">
+      <li><i class="icon-comments"></i></li>
+      <li><a href="http://blog.lifetoy.org/2009/acm-icpc-shanghai-regional-tour#disqus_thread">评论</a></li>
+    </ul>
+    <ul class="tag_box inline">
+      <li><i class="icon-folder-open"></i></li>
+      <li>
+        <a href="/categories#life-ref">life <span>4</span></a>
+      </li>    </ul>
+    <ul class="tag_box inline">
+      <li><i class="icon-tags"></i></li>
+      <li>
+        <a href="#acm-ref">acm <span>1</span></a>
+      </li>      <li>
+        <a href="#icpc-ref">icpc <span>1</span></a>
+      </li>      <li>
+        <a href="#regional-ref">regional <span>1</span></a>
+      </li>      <li>
+        <a href="#shanghai-ref">shanghai <span>1</span></a>
+      </li>    </ul>
+  </div>
+</div>
+
+      </div>
+
+      <hr>
+      <div class="footer">
+        <p>&copy; Cheng Li 2013
+          with help from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+        </p>
+      </div>
+
+    </div> <!-- /container -->
+
+    <!-- Google Prettify -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+<!-- end Google Prettify -->
+    <script>
+  var _gaq=[['_setAccount','UA-123-12'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+  </body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>首页 - 无人区@寒水远山</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Cheng Li">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css?0.763086954866484" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/font-awesome.min.css?0.19934127307378113" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css?0.24607112621665927" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css?0.9930955651633232" type="text/css" rel="stylesheet" media="all">
+
+    
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">无人区@寒水远山</a>
+          <ul class="nav">
+              
+                <li><a href="/archive">文章列表</a></li>
+              
+                <li><a href="/categories">分类</a></li>
+              
+                <li><a href="/about">关于我</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="row-fluid">
+  <div class="span7 offset1">
+
+    <div class="post">
+  <h3 class="title"><a href="/2010/isatap-behide-nat">在 NAT 后面使用 ISATAP 连接 IPv6</a> <span class="date">2010-01-31</span></h3>
+
+  <p>寒假回家想用 isatap 连接 ipv6, 但是家里是用路由器上网, isatap 默认在 NAT
+后面没法正常工作. 考虑到路由器后面只有我一台机器需要 ipv6 连接,
+于是开始瞎折腾, 想办法把所有 isatap 的数据全部定向到我那台机器上.
+我机器的系统是 win7, 路由器系统是 openwrt brcm-2.4.</p>
+
+<p>首先在路由器防火墙里面加条规则, 把收到的协议号是 41
+的数据包全部重定向到我的机器上面. 像 isatap, 6to4 等协议的协议号都是 41.
+openwrt 可以直接修改 /etc/config/firewall :</p>
+
+<pre><code class="lang=&quot;INI&quot;">config redirect
+option src                      wan
+option dest                     lan
+option dest_ip          192.168.11.2
+option proto            41
+</code></pre>
+
+
+  <div class="more">
+      <a href="/2010/isatap-behide-nat" class="btn btn-link btn-small"><i class="icon-arrow-right"></i> 阅读全文..</a>
+  </div>
+</div>
+<div class="post">
+  <h3 class="title"><a href="/2010/year-2009">2009 年</a> <span class="date">2010-01-03</span></h3>
+
+  <p>首先祝大家新年快乐 :-D</p>
+
+<p>最近看到许多朋友都在写 09 年的总结, 自己才意识到新的一年已经来临了.
+对于我这种人来说, 时间总是过去了之后才觉得它过得飞快. 一年之前元旦前夜,
+我和同学在紫金港文化广场一边吃夜宵一边看新年焰火的景象还历历在目,
+而现在我才发现, 那漫长的一年不知道什么时候已经从指缝间溜走,
+以至于现在回想的时候, 感觉很是茫然.</p>
+
+<p>既然已经是新的一年了, 自己还是总结一下自己的 09 年吧.</p>
+
+<ul>
+<li>  2 月份寒假. 看到了好的高中的同学,
+还见到了初中的班主任和一些许久未见的初中同学. 看到了大家的变化,
+心里也有不少的感触.</li>
+<li>  3 月底讲了一次小课堂. 这大概算自己人生中比较值得纪念的一件事吧,
+第一次在一个面向全校同学的场合上讲技术问题. 现在想起来,
+那次讲座自己做的挺不好的, 之前准备的许多内容在讲台上一紧张就忘记了.
+不过据场下的同学说讲的还不错, 但愿是这样吧 :)</li>
+<li>  4 月份妈妈和我说了一些外婆身体不好的事情.
+接下来便传来了外婆要动大手术的消息,
+妈妈刚告诉我的时候我被吓得说不出话来, 所幸后来手术还是挺成功的.
+期间回家了一周去看了看外婆.</li>
+<li>  3 月份的校赛和 5 月份省赛都是悲剧, 而 4
+月份到宁波理工参加的全国邀请赛还被别的学校狠狠鄙视了一下. 很失落.</li>
+<li>  6 月份的编程答疑版聚. 是在学校竞赛推介会之后, 一次巨大的 FB. 很开心.
+过了 CET 6.</li>
+<li>  7 月份的暑期集训. 其实自己一点信心都没有, 坑少牛多,
+我这种土人只有靠边站的份. 这段时间脑子里很混乱, 自己很彷徨,
+想了很多很多今后的打算, 回家之后也跟父母与同学聊了许多. 幸运的是,
+最后进入了校队.</li>
+<li>  8 月份的校队训练. 既然最后进了校队, 就先专注做好眼前的事情.
+这段时间失去了很多, 也得到了很多. 一个月的练习自己从史哥和 jay
+哥那里学到了不少东西.</li>
+<li>  9 月份开学, 同时校队继续集训. 10 月初就要第一场 Regional 比赛,
+感觉气氛很压抑.</li>
+<li>  10 月份参加了两场 Regional 比赛. 尽管之前很压抑,
+比赛的时候玩的还是很开心的,
+不知道是不是长久压抑之后自己有些想法也变了吧.
+两场比赛的成绩都还不错, 自己也有了保研的希望.</li>
+<li>  11 月份几乎有一半的时间是在医院里面度过的.
+人生第一次住院居然是因为感冒, 真是可悲.
+连自己的生日都是在医院里面度过的.</li>
+<li>  12 月自己加入了何老师的实验室. 希望自己不要继续混日子,
+能够确确实实学到一点东西.</li>
+</ul>
+
+
+  <div class="more">
+      <a href="/2010/year-2009" class="btn btn-link btn-small"><i class="icon-arrow-right"></i> 阅读全文..</a>
+  </div>
+</div>
+<div class="post">
+  <h3 class="title"><a href="/2009/hospital-life">住院</a> <span class="date">2009-11-21</span></h3>
+
+  <p>在之前, 我想自己从来不会想到自己居然会因为一次简简单单的感冒住院了.
+似乎从自己有记忆的时候开始, 自己就没住过医院, 乃至盐水都没有挂过几次.
+不过充满悲剧的生活大概是从来不会让人预料到其悲剧的,
+正如生活中充满了悲剧的我也从来没法预料到自己下一个悲剧是什么时候.
+就在一个隐隐昭示着悲剧的夜晚, 11 月 3 日晚上, 杭州的天气突然降温,
+于是衣服加得不够多我就悲剧得感冒了.</p>
+
+<p>一开始的感冒也正如自己之前的所有感冒一样, 一点鼻塞, 喉咙痛.
+于是自己随便吃了点药, 也没怎么在意. 没想到过了两三天, 感冒不仅没有好转,
+反而愈演愈烈, 11 月 8 日直接发烧到 38.9 度. 没办法,
+自己只能去校医院看下. 验完血之后医生直接排除了 H1N1 感染, 于是开了点药,
+扎了几瓶盐水, 体温很快就下来了. 以为自己大概没事了,
+也没把医生复诊的要求放在心里, 回到寝室吃点药就不再管了. 第二天体温正常,
+悲剧的是第三天又开始烧了, 于是只好再去校医院看病.
+医生看了我的胸片之后居然直接给我开了三天的盐水 :-? , 这回没办法了,
+只好老老实实去医院挂盐水. 可是悲剧的是挂了两天, 体温还是没有降下来.
+那两天整个人都昏昏沉沉的, 做什么事情都没精神,
+于是后来自己再一次去挂号找医生了. 在血检尿检折腾了一番之后, 医生建议我:
+住院吧 :mrgreen: .</p>
+
+
+  <div class="more">
+      <a href="/2009/hospital-life" class="btn btn-link btn-small"><i class="icon-arrow-right"></i> 阅读全文..</a>
+  </div>
+</div>
+<div class="post">
+  <h3 class="title"><a href="/2009/acm-icpc-shanghai-regional-tour">ACM/ICPC Shanghai Regional 游记</a> <span class="date">2009-10-27</span></h3>
+
+  <p><img src="/assets/media/images/acm_icpc.png" alt="acm\_icpc" title="acm_icpc">
+首先必须指出的是, 我们参加的不是上海赛区的比赛, 是松江赛区的.
+当校车将我们送到大众宾馆的时候, 我们就意识到了这点: 方圆 x 里之内,
+似乎就宾馆这一座肉眼可见建筑.</p>
+
+<p>报道是在另一个宾馆搞定的, 报道的时候顺便抽签 + 测体温,
+于是被大家围观到了 jay 哥看到 mm (手中的体温计) 时扭过头视死如归的神情
+(据 shi 哥说还有更深层次的原因, 这里就不爆了). 晚饭在宾馆吃,
+每人发一小碗菜 (就像是装在盘子里面的麦香快餐), 群众们纷纷表示太抠门了.</p>
+
+<p>晚饭后继续宅宾馆. 必须要说宾馆的网络太赞了, Huawei 的接入认证, 直接可以
+DHCP 到一个公网 IP, 实际测试网络大概有 1M/s, 比 zjg 那个破烧卡快多了.</p>
+
+
+  <div class="more">
+      <a href="/2009/acm-icpc-shanghai-regional-tour" class="btn btn-link btn-small"><i class="icon-arrow-right"></i> 阅读全文..</a>
+  </div>
+</div>
+<div class="post">
+  <h3 class="title"><a href="/2009/excel-07-crashes-on-windows-7">Excel 07 crashes in Windows 7</a> <span class="date">2009-10-15</span></h3>
+
+  <p>装了 Windows 7 之后似乎就一直有这个问题, 一用 Excel
+打开一个文档就直接崩溃掉了. 不过平时用 Excel 不多, 忍一忍就算了.
+今天实在忍不住了, 搜索了一下, 原来是 WIDCOMM 蓝牙驱动的问题,
+蓝牙驱动自带的 Office sendto Bluetooth addin 在 Windows 7 下面有 bug.
+一个简单的解决办法是直接把 C:\Windows\system32\btsendto_office.dll 删掉就好了.</p>
+
+
+  <div class="more">
+      <a href="/2009/excel-07-crashes-on-windows-7" class="btn btn-link btn-small"><i class="icon-arrow-right"></i> 阅读全文..</a>
+  </div>
+</div>
+
+<div class="pagination">
+  <ul>
+      <li class="active"><a href="/">1</a></li>
+      <li><a href="/posts/2">2</a></li>
+  </ul>
+</div>
+
+  </div>
+  <div class="span3">
+    <div id="mylinks">
+      <ul class="nav nav-list">
+        <li><a href="/rss.xml"><span class="icon-rss"></span>订阅 RSS</a></li>
+        <li><a href="http://github.com/licheng/"><span class="icon-github"></span>Github</a></li>
+        <li><a href="http://twitter.com/li_cheng/"><span class="icon-twitter"></span>Twitter</a></li>
+        <li><a href="https://www.facebook.com/cheng.li.5494"><span class="icon-facebook"></span>Facebook</a></li>
+        <li><a href="http://www.linkedin.com/profile/view?id=91322629"><span class="icon-linkedin"></span>Linkedin</a></li>
+      </ul>
+    </div>
+    <div id="recentcomments" class="dsq-widget">
+      <h3 class="dsq-widget-title">最近评论</h3>
+      <script type="text/javascript" src="http://blog-lifetoy.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=200"></script>
+    </div>
+    <div>
+      <h3>链接</h3>
+      <ul class="nav nav-list">
+        <li><a href="http://blog.stariy.org/"><i class="icon-link"></i>-Flyぁ梦-</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+      </div>
+
+      <hr>
+      <div class="footer">
+        <p>&copy; Cheng Li 2013
+          with help from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+        </p>
+      </div>
+
+    </div> <!-- /container -->
+
+    <!-- Google Prettify -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+<!-- end Google Prettify -->
+    <script>
+  var _gaq=[['_setAccount','UA-123-12'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+  </body>
+</html>

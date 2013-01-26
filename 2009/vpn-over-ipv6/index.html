@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>VPN over IPv6 - 无人区@寒水远山</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Cheng Li">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/assets/twitter/stylesheets/bootstrap.min.css?0.3037371120036332" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/font-awesome.min.css?0.1921893836698113" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/stylesheets/style.css?0.23672113968960917" type="text/css" rel="stylesheet" media="all">
+<link href="/assets/twitter/widgets/google_prettify/stylesheets/twitter-bootstrap.css?0.13020759019162276" type="text/css" rel="stylesheet" media="all">
+
+    
+
+    <!-- Le fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+  </head>
+
+  <body>
+
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">无人区@寒水远山</a>
+          <ul class="nav">
+              
+                <li><a href="/archive">文章列表</a></li>
+              
+                <li><a href="/categories">分类</a></li>
+              
+                <li><a href="/about">关于我</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header row-fluid">
+  <div class="span10 offset1">
+    <h1>VPN over IPv6 </h1>
+  </div>
+</div>
+<div class="row-fluid post-full">
+  <div class="span7 offset1">
+    <div class="content">
+      <p><a href="https://www.lifetoy.org/2009/09/11/vpn-over-ipv6/applications-internet/"><img src="/assets/media/images/applications-internet.png" alt="applications-internet" title="applications-internet"></a>最近对学校的
+VPN 相当不满, 且不说 50 RMB 一个月的价格,
+还没正式开学网速就已经慢得忍无可忍, 再加上网络上那啥长城最近越来越 BT,
+浏览网页时不时出现的 Connection Reset 让人郁闷至极. (吐槽完毕).
+恰好原来租的 DreamHost 马上就要到期了. 正准备考虑以后网页要放哪里的时候,
+看到原来一起合租 DreamHost
+的一位朋友<a href="http://www.briefdream.com/seeking-vps-co-tenant/">提到</a>,
+可以自己租一个支持 IPv6 的 VPS, 在上面架个 VPN 服务器上网,
+顺便还可以穿墙. 学校免费且不限速的 IPv6 网络实在太适合干这种坏事了
+:grin: .想法是挺好, 不过折腾起来倒是有些麻烦. 目前支持 IPv6 的 VPN
+服务器/客户端还寥寥无几. Google 了一下主要有这几种解决方案:</p>
+
+<ol>
+<li> OpenVPN + IPv6 patch 感觉 OpenVPN 算最著名的开源 VPN 解决方案了,
+可是这玩意居然不支持 IPv6 实在让我感到诧异. 搜了一下发现早在 04
+年邮件列表里面就已经有 IPv6 的讨论了, 并且当时已经有人给出了一个
+IPv6 的 patch. 翻了一下 OpenVPN 的 SVN, 看到<a href="http://svn.openvpn.net/projects/openvpn/patches/openvpn-2-1_alpha3a-tcpbind/">某个 2.1 alpha 的
+branch</a>
+里面是有 IPv6 patch, 一看时间是 05 年  :| , 不知道为啥后来没有进
+trunk. 根据作者的说明, 这个 patch 只支持 linux, 于是直接被我 pia
+飞了, 因为我在用 Windows :).
+不过后来发现这个方法居然已经有商业运营了, 号称 &quot;IPv6 直通车&quot;.
+看来下它的客户端,  里面包含一个 OpenVPN 的 Windows 版本和一个
+proxy.exe. 猜测那个 proxy.exe 是本地监听了一个 v4 的 udp 端口,
+然后把所有数据转发到直接的 v6 地址上去. 感觉真囧 :-? .</li>
+<li> Tinc 官方网站赤裸裸地说对 IPv6 支持良好. 经过某人测试,
+的确如此——Linux 客户端确实对 IPv6 支持良好, 不过 Windows
+下面就悲剧了. 看了下 mailing list 也提到过这个问题,
+然后作者放了一个自己都不知道会不会 work 的 patch = =||,
+没胆量去尝试. 就算能用, 我也不想在 Windows 下面折腾这种东西.
+最讨厌在 Windows 下面用 mingw 编译这种所谓跨平台程序了, 经常还得弄个
+<a href="http://www.mingw.org">MSYS</a> 跑脚本, 烦死.</li>
+<li> PPTP Windows 自带客户端, 并且支持 IPv6 (Vista 以后的版本),
+客户端的问题就不用考虑了. 不过服务端有些悲剧,
+邮件列表上面说那个已经不知道有多 old 的
+<a href="http://www.poptop.org">poptop</a> 对 IPv6 的 GRE 数据处理上有问题.
+因为对 GRE 不熟悉, 所以也没去搞这个东西.</li>
+<li> L2TP 同样是 Windows 自带客户端, 同样也支持 IPv6. 服务端是
+<a href="http://www.xelerance.com/software/xl2tpd/">xl2tpd</a>. 测试了一下,
+服务端不支持 IPv6. 不过整个 L2TP 协议用 udp 传输, 感觉 udp
+协议的东西 hack 起来还是比较简单的.</li>
+</ol>
+
+<p>于是准备动手乱搞下 xl2tpd. 一开始写了个类似 port proxy 的东西,
+在服务端监听 v6 的端口 (虽然 v6 和 v4 的端口是公用的 -,-),
+然后把数据包转发给监听在 v4 端口的 xl2tpd.
+不过后来觉得处理多连接的时候真麻烦 (莫非就是因为这个原因 Windows 自带的
+Portproxy 只支持 tcp 连接?), 于是直接对 xl2tpd 动手了. 为了偷懒,
+改的方法也很暴力: 直接用 sed 把几个常见的函数和结构改成 v6 的版本,
+然后稍微修改些别的地方直到编译通过 :P . 这里把自己修改的东西整理成一个
+patch, 需要的童鞋可以<a href="/assets/media/misc/xl2tpd-ipv6.diff">点这里</a>下载.
+同样是我比较懒的缘故, patch 过的版本直接忽略了配置文件里面的几个选项,
+像listen addr, lac range. 另外做client的时候, 如果server地址含有冒号,
+要在最后补上端口号(:1701).</p>
+
+<p><img src="/assets/media/images/vpnstat.png" alt="L2TP Windows
+Client" title="L2TP Windows Client"></p>
+
+<p>虽然是山寨的东西, 不过用了几周之后感觉还不错 :). 贴一份截图供围观.</p>
+
+<p>在上面提到的之外, 还有其他更为简单 (但是山寨) 的方案. 事实上, 除了上面
+(1) (2) 两种是基于 TAP 的, 其他的都是基于 PPP 的. 从我个人的感觉来看,
+相对于 TAP, PPP 包括了一套相对完整的协议,
+并且在各个操作系统上面都有较好的实现, 同时扩展性也不差,
+使用起来也更为方便. 如果想完全自己山寨的话, 也可以之后用 netcat 搞定: 用
+netcat 在两台机器间建立一个 tcp 或者 udp 的通道, 然后把 ppp
+数据全部重定向到通道里面去. 这个在 Linux 下面实现还是相当容易的, 通过
+pppd 的 pty 参数或者重定向默认 pppd 的 stdin 都可以. 当然,
+上面提到过的自己写一个端口转发的工具也是可以的.</p>
+
+<p>不过在实际情况中还有一些麻烦的东西需要考虑. 首先虽然 tcp 更为通用
+(我这里的通用是指, tcp 协议更能适应国内各种奇怪的网络限制,
+譬如穿透代理服务器, 或者是 SSL 隧道), 但是无疑它的效率不如 udp. 稳定的,
+面向连接的协议在这种情况下会付出的更多: 更长的 packet header,
+以及用不到的维持连接和确认状态的包 (像 tcp 中各种 ack 包). 另外, MTU/MRU
+的问题也非常烦人, 像 netcat 就不用说了, 遇到这种问题基本残废,
+改就算用专门的 VPN 软件, 设置的时候也要小心. 改小了感觉性能不佳,
+改大了又可能会出各种问题. 我第一次配置 VPN 的时候, 就遇到过这类问题:
+http 网页都能正常访问, 但是 https 连接就不正常, 后来改了 MRU 之后才解决
+(当然用 iptables 修改 TCPMSS 也是可以的).</p>
+
+<p>说到底搞了这么复杂, 还是 IPv6 不够普及的原因, 如果 IPv6 普及了, 估计各个
+VPN 服务器/客户端都会争先恐后地添加 v6 的支持. 只是那个时候估计 IPv6
+的网络就不会免费, 这个 VPN 方法也用不成了 :P .</p>
+
+    </div>
+    <hr>
+    <div class="pagination">
+      <ul>
+          <li class="prev"><a href="/2009/hello-world" title="Hello world!">&larr; 上一篇</a></li>
+
+          <li><a href="/archive">文章列表</a></li>
+
+          <li class="next"><a href="/2009/mid-autumn-festival" title="中秋">下一篇 &rarr;</a></li>
+      </ul>
+    </div>
+    <hr>
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'blog-lifetoy';
+        var disqus_url = 'http://blog.lifetoy.org/2009/vpn-over-ipv6';
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+        (function () {
+          var s = document.createElement('script'); s.async = true; s.type = 'text/javascript';
+          s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+          (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">正在加载 <span class="logo-disqus">Disqus</span> 评论</a>
+  </div>
+
+  <div class="span3">
+    <ul class="unstyled inline">
+      <li><i class="icon-calendar"></i></li>
+      <li>发布时间 <strong>2009-09-11</strong></li>
+    </ul>
+    <ul class="unstyled inline">
+      <li><i class="icon-comments"></i></li>
+      <li><a href="http://blog.lifetoy.org/2009/vpn-over-ipv6#disqus_thread">评论</a></li>
+    </ul>
+    <ul class="tag_box inline">
+      <li><i class="icon-folder-open"></i></li>
+      <li>
+        <a href="/categories#tools-ref">tools <span>1</span></a>
+      </li>    </ul>
+    <ul class="tag_box inline">
+      <li><i class="icon-tags"></i></li>
+      <li>
+        <a href="#ipv6-ref">ipv6 <span>2</span></a>
+      </li>      <li>
+        <a href="#linux-ref">linux <span>1</span></a>
+      </li>      <li>
+        <a href="#vpn-ref">vpn <span>1</span></a>
+      </li>      <li>
+        <a href="#xl2tpd-ref">xl2tpd <span>1</span></a>
+      </li>    </ul>
+  </div>
+</div>
+
+      </div>
+
+      <hr>
+      <div class="footer">
+        <p>&copy; Cheng Li 2013
+          with help from <a href="http://ruhoh.com" target="_blank" title="The Definitive Technical Blogging Framework">ruhoh</a>
+          and <a href="http://twitter.github.com/bootstrap/" target="_blank">Twitter Bootstrap</a>
+        </p>
+      </div>
+
+    </div> <!-- /container -->
+
+    <!-- Google Prettify -->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+<script>
+  var pres = document.getElementsByTagName("pre");
+  for (var i=0; i < pres.length; ++i) {
+    pres[i].className = "prettyprint linenums";
+  }
+  prettyPrint();
+</script>
+<!-- end Google Prettify -->
+    <script>
+  var _gaq=[['_setAccount','UA-123-12'],['_trackPageview']];
+  (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+  g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+  s.parentNode.insertBefore(g,s)}(document,'script'));
+</script>
+  </body>
+</html>
